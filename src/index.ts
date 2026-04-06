@@ -6,6 +6,7 @@ import { getMoodKeyboard, getDurationKeyboard, getMovieActionKeyboard } from './
 import type { MyContext } from './types/context.js';
 import { getMovieByPreferences } from './services/recommendation.service.js';
 import { formatMovieCard } from './utils/formatMovie.js';
+import { getOrCreateUser, savePreference } from './db/users.repository.js';
 
 dotenv.config();
 
@@ -29,6 +30,18 @@ const bot = new Bot<MyContext>(process.env.BOT_TOKEN);
 bot.use(startCommand);
 bot.use(helpCommand);
 bot.use(movieCommand);
+
+// Middleware: сохраняем пользователя при каждом сообщении
+bot.use(async (ctx, next) => {
+  if (ctx.from) {
+    try {
+      await getOrCreateUser(ctx.from.id, ctx.from.username, ctx.from.first_name);
+    } catch (err) {
+      logger.warn(err, 'Не удалось сохранить пользователя');
+    }
+  }
+  return next();
+});
 
 // Обработка callback от жанров
 bot.callbackQuery(/^genre_(.+)/, async (ctx) => {
@@ -105,8 +118,16 @@ bot.callbackQuery('action_random', async (ctx) => {
 
 // Обработка лайк/дизлайк
 bot.callbackQuery(/^action_(like|dislike)$/, async (ctx) => {
-  const action = ctx.match[1];
+  const action = ctx.match[1] as 'like' | 'dislike';
   const emoji = action === 'like' ? '👍' : '👎';
+
+  try {
+    const user = await getOrCreateUser(ctx.from!.id, ctx.from!.username, ctx.from!.first_name);
+    // Пока сохраняем без movieId — будет доработано на этапе 4
+    await savePreference(user.id, 0, 'unknown', action);
+  } catch (err) {
+    logger.warn(err, 'Не удалось сохранить предпочтение');
+  }
 
   await ctx.answerCallbackQuery(`${emoji} Сохранено!`);
   await ctx.editMessageText(
