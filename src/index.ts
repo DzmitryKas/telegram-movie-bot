@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 import { startCommand, helpCommand, movieCommand } from './bot/commands/index.js';
 import { getMoodKeyboard, getDurationKeyboard, getMovieActionKeyboard } from './bot/keyboards/genre.keyboard.js';
 import type { MyContext } from './types/context.js';
+import { getMovieByPreferences } from './services/recommendation.service.js';
+import { formatMovieCard } from './utils/formatMovie.js';
 
 dotenv.config();
 
@@ -62,19 +64,29 @@ bot.callbackQuery(/^duration_(.+)/, async (ctx) => {
 
   await ctx.answerCallbackQuery();
 
-  // Пока — заглушка, позже здесь будет вызов TMDB
-  await ctx.editMessageText(
-    '🎬 *Ищу фильм для тебя...*\n\n' +
-    `Жанр: \`${state.genre}\`\n` +
-    `Настроение: \`${state.mood}\`\n` +
-    `Длительность: \`${state.duration}\`\n\n` +
-    '⚙️ TMDB API подключается на следующем этапе!\n' +
-    'А пока попробуй /random или /help',
-    {
+  try {
+    await ctx.editMessageText('🔍 *Ищу фильм для тебя...*', { parse_mode: 'Markdown' });
+
+    const movie = await getMovieByPreferences({
+      genre: state.genre,
+      mood: state.mood,
+      duration: state.duration,
+    });
+
+    const card = formatMovieCard(movie);
+
+    await ctx.editMessageText(card, {
       parse_mode: 'Markdown',
       reply_markup: getMovieActionKeyboard(),
-    },
-  );
+    });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Неизвестная ошибка';
+    logger.error(err, 'Ошибка при поиске фильма');
+    await ctx.editMessageText(
+      `😔 Не удалось найти фильм: ${message}\n\nПопробуй ещё раз!`,
+      { reply_markup: getMovieActionKeyboard() },
+    );
+  }
 });
 
 // Обработка кнопки "Ещё вариант"
