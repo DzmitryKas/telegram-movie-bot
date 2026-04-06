@@ -1,0 +1,46 @@
+{
+  "name": "telegram-movie-bot",
+  "version": "1.0.0",
+  "description": "Telegram bot for finding movies for the evening",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "lint": "eslint src/",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DzmitryKas/telegram-movie-bot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/DzmitryKas/telegram-movie-bot/issues"
+  },
+  "homepage": "https://github.com/DzmitryKas/telegram-movie-bot#readme",
+  "dependencies": {
+    "dotenv": "^17.4.1",
+    "drizzle-orm": "^0.45.2",
+    "grammy": "^1.42.0",
+    "pino": "^10.3.1",
+    "postgres": "^3.4.9",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^25.5.2",
+    "drizzle-kit": "^0.31.10",
+    "eslint": "^10.2.0",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2",
+    "typescript-eslint": "^8.58.0"
+  }
+}
