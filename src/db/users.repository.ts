@@ -106,3 +106,38 @@ export async function getUserStats(userId: number) {
       : null,
   };
 }
+
+/**
+ * Получить историю просмотров пользователя (последние 20)
+ */
+export async function getUserHistory(userId: number) {
+  return db
+    .select({
+      movieId: watchedMovies.movieId,
+      movieTitle: watchedMovies.movieTitle,
+      rating: watchedMovies.rating,
+      createdAt: watchedMovies.createdAt,
+    })
+    .from(watchedMovies)
+    .where(eq(watchedMovies.userId, userId))
+    .orderBy(watchedMovies.createdAt)
+    .limit(20);
+}
+
+/**
+ * Получить топ жанров пользователя
+ */
+export async function getUserTopGenres(userId: number) {
+  const likedMovies = await db
+    .select({ movieTitle: userPreferences.movieTitle })
+    .from(userPreferences)
+    .where(
+      and(
+        eq(userPreferences.userId, userId),
+        eq(userPreferences.action, 'like'),
+      ),
+    );
+
+  // Возвращаем список любимых фильмов (жанры можно получить из TMDB)
+  return likedMovies;
+}

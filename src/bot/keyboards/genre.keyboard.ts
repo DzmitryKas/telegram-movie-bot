@@ -16,12 +16,16 @@ export function getGenreKeyboard(): InlineKeyboard {
 }
 
 export function getMoodKeyboard(): InlineKeyboard {
-  return new InlineKeyboard()
+  const keyboard = new InlineKeyboard()
     .text('😊 Лёгкий', 'mood_light')
     .text('🤔 Серьёзный', 'mood_serious')
     .row()
     .text('🔥 Захватывающий', 'mood_thrilling')
-    .text('😢 Трогательный', 'mood_touching');
+    .text('😢 Трогательный', 'mood_touching')
+    .row()
+    .text('⬅️ Назад', 'back_to_genre');
+  
+  return keyboard;
 }
 
 export function getDurationKeyboard(): InlineKeyboard {
@@ -30,7 +34,9 @@ export function getDurationKeyboard(): InlineKeyboard {
     .text('⏱ 90-120 мин', 'duration_medium')
     .row()
     .text('⏱ 120+ мин', 'duration_long')
-    .text('⏱ Не важно', 'duration_any');
+    .text('⏱ Не важно', 'duration_any')
+    .row()
+    .text('⬅️ Назад', 'back_to_mood');
 }
 
 export function getMovieActionKeyboard(): InlineKeyboard {

@@ -1,8 +1,9 @@
-import js from '@eslint/js';
+const js = require('@eslint/js');
 
-export default [
+module.exports = [
   js.configs.recommended,
   {
+    files: ['src/**/*.ts'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',

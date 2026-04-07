@@ -13,6 +13,28 @@ services:
       - '5432:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U moviebot -d movie_bot']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: movie-bot
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}
+      TMDB_API_KEY: ${TMDB_API_KEY}
+      DATABASE_URL: postgresql://moviebot:moviebot_password@postgres:5432/movie_bot
+      NODE_ENV: production
+    env_file:
+      - .env
 
 volumes:
   pgdata:
